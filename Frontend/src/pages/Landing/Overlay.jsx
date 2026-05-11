@@ -96,7 +96,12 @@ export default function Overlay() {
                     </p>
 
                     <div className="flex flex-col md:flex-row gap-4 md:gap-6 justify-center items-center mt-8 md:mt-12">
-                        <button className="hero-button opacity-0 relative group px-8 py-4 md:px-10 md:py-5 bg-[#292524] text-[#fcf6e6] font-bold rounded-full overflow-hidden shadow-2xl transition-all duration-300 hover:scale-105 hover:shadow-[#d97706]/40 text-sm md:text-base">
+                        <button 
+                            onClick={() => {
+                                document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+                            }}
+                            className="hero-button pointer-events-auto cursor-pointer opacity-0 relative group px-8 py-4 md:px-10 md:py-5 bg-[#292524] text-[#fcf6e6] font-bold rounded-full overflow-hidden shadow-2xl transition-all duration-300 hover:scale-105 hover:shadow-[#d97706]/40 text-sm md:text-base"
+                        >
                             <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-[#d97706] to-[#b45309] translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-500 ease-out" />
 
                             <div className="relative flex items-center gap-3">
