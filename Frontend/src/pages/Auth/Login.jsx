@@ -32,8 +32,20 @@ const Login = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleRoleChange = (role) => {
-        setFormData({ ...formData, role });
+    const dbToDisplayRole = (dbRole) => {
+        if (dbRole === 'Student') return 'User';
+        if (dbRole === 'Maintenance') return 'Maintenance';
+        return dbRole; // 'Admin'
+    };
+
+    const displayToDbRole = (displayRole) => {
+        if (displayRole === 'User') return 'Student';
+        if (displayRole === 'Maintenance') return 'Maintenance';
+        return displayRole; // 'Admin'
+    };
+
+    const handleRoleChange = (displayRole) => {
+        setFormData({ ...formData, role: displayToDbRole(displayRole) });
     };
 
     const handleAuth = async (e) => {
@@ -234,7 +246,7 @@ const Login = () => {
                         {!isLogin && (
                             <div className="pt-1">
                                 <label className="block text-[10px] font-bold text-secondary uppercase tracking-widest mb-2">Clearance Level</label>
-                                <RoleToggle selected={formData.role} onSelect={handleRoleChange} />
+                                <RoleToggle selected={dbToDisplayRole(formData.role)} onSelect={handleRoleChange} />
                             </div>
                         )}
 
@@ -315,7 +327,7 @@ const SketchInput = ({ label, type, placeholder, name, value, onChange }) => {
 
 // Wooden Toggle Switch
 const RoleToggle = ({ selected, onSelect }) => {
-    const options = ['Student', 'Employee', 'Admin'];
+    const options = ['User', 'Admin', 'Maintenance'];
     const toggleRef = useRef(null);
 
     // Initial position based on selected prop
@@ -336,8 +348,10 @@ const RoleToggle = ({ selected, onSelect }) => {
             {/* The Puck (Indicator) */}
             <div
                 ref={toggleRef}
-                className="absolute top-1 left-1 bottom-1 w-[calc(33.33%-0.5rem)] bg-paper border border-secondary/20 shadow-sm z-0"
-            />
+                className="absolute top-1 bottom-1 left-1 w-[calc((100%-0.5rem)/3)] z-0 p-[2px]"
+            >
+                <div className="w-full h-full bg-paper border border-secondary/20 shadow-sm rounded-sm" />
+            </div>
 
             {options.map((opt) => (
                 <button

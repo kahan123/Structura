@@ -189,7 +189,11 @@ const ArchitecturalAssemblySection = () => {
     };
 
     return (
-        <section ref={sectionRef} className="w-full h-[150vh] bg-[#0b0f15] relative flex flex-col items-center justify-end pb-20 overflow-hidden font-sans selection:bg-cyan-500/30">
+        <section
+            id="support"
+            ref={sectionRef}
+            className="w-full h-[150vh] bg-[#0b0f15] relative flex flex-col items-center justify-end pb-20 overflow-hidden font-sans selection:bg-cyan-500/30"
+        >
 
             <div className="absolute inset-0 opacity-20 pointer-events-none">
                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] [background-size:50px_50px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_100%)]" />

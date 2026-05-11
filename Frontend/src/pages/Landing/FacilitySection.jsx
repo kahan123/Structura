@@ -251,6 +251,7 @@ const FacilitySection = ({ setHideNavbar }) => {
 
     return (
         <section
+            id="how-it-works"
             style={{ height: '100vh' }}
             className={`relative w-full bg-gradient-to-b from-transparent via-[#050505]/95 to-[#050505] overflow-hidden flex flex-col items-center justify-center font-sans selection:bg-cyan-500/30 snap-start ${isHovering && !expandedFeatureId ? 'cursor-none' : ''}`}
             onMouseEnter={() => setIsHovering(true)}

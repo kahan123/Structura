@@ -111,6 +111,10 @@
   /* p-3 equivalent */
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 /* Base styles */
 body {
   background-color: var(--color-dark);

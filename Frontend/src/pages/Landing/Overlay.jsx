@@ -57,7 +57,7 @@ export default function Overlay() {
                     stagger: 0.2,
                     ease: "power2.out",
                     scrollTrigger: {
-                        trigger: "#features-section",
+                        trigger: "#features",
                         start: "top 60%",
                         toggleActions: "play none none reverse"
                     }
@@ -174,7 +174,7 @@ export default function Overlay() {
 
 
             {/* ==================== Section 3: Booking Logic ==================== */}
-            <section id="features-section" className="min-h-[200vh] md:h-[200vh] w-full flex flex-col items-center md:items-end justify-center p-6 md:p-20 pointer-events-none relative">
+            <section id="features" className="min-h-[200vh] md:h-[200vh] w-full flex flex-col items-center md:items-end justify-center p-6 md:p-20 pointer-events-none relative">
 
                 <div className="pointer-events-auto w-full md:w-[500px] md:mr-10 relative flex flex-col space-y-4 md:space-y-6 mt-10 md:mt-0">
 

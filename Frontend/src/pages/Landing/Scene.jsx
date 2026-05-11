@@ -100,7 +100,7 @@ export default function Scene() {
 
             const featureTl = gsap.timeline({
                 scrollTrigger: {
-                    trigger: "#features-section",
+                    trigger: "#features",
                     start: "top bottom",
                     end: "center center",
                     scrub: 1,

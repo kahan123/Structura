@@ -81,6 +81,7 @@ const UserManagement = () => {
         switch (role) {
             case 'Admin': return <Shield className="w-3 h-3 text-red-500" />;
             case 'Faculty': return <Briefcase className="w-3 h-3 text-purple-500" />;
+            case 'Maintenance': return <Briefcase className="w-3 h-3 text-amber-500" />;
             default: return <GraduationCap className="w-3 h-3 text-blue-500" />;
         }
     };
@@ -192,6 +193,7 @@ const UserManagement = () => {
                                             <option value="Student">Student</option>
                                             <option value="Faculty">Faculty</option>
                                             <option value="Admin">Admin</option>
+                                            <option value="Maintenance">Maintenance</option>
                                         </select>
                                         <button
                                             onClick={async () => {
@@ -232,7 +234,7 @@ const UserManagement = () => {
 
                             <label className="block text-xs font-bold text-secondary uppercase mb-2">Assign Role</label>
                             <div className="space-y-2">
-                                {['Student', 'Faculty', 'Admin'].map(role => (
+                                {['Student', 'Faculty', 'Admin', 'Maintenance'].map(role => (
                                     <button
                                         key={role}
                                         onClick={() => setSelectedRole(role)}

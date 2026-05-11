@@ -104,7 +104,11 @@ const AutomationPipelineSection = () => {
         : [{ x: 150, y: 200 }, { x: 500, y: 150 }, { x: 850, y: 200 }];
 
     return (
-        <section ref={sectionRef} className="w-full h-screen pt-24 bg-[#050505] flex flex-col items-center justify-start relative overflow-hidden font-sans selection:bg-green-500/30">
+        <section
+            id="analytics"
+            ref={sectionRef}
+            className="w-full h-screen pt-24 bg-[#050505] flex flex-col items-center justify-start relative overflow-hidden font-sans selection:bg-green-500/30"
+        >
 
             <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_80%)]" />
