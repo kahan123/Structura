@@ -16,7 +16,8 @@ const server = http.createServer(app);
 const allowedOrigins = [
     'http://localhost:5173',
     'http://localhost:5000',
-    'https://structura-resource-management.vercel.app'
+    'https://structura-resource-management.vercel.app',
+    'https://structura-silk.vercel.app'
 ];
 app.use(cors({
     origin: function (origin, callback) {

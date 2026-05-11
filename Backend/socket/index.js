@@ -9,7 +9,8 @@ const socketInit = (server) => {
                 const allowedOrigins = [
                     'http://localhost:5173',
                     'http://localhost:5000',
-                    'https://structura-resource-management.vercel.app'
+                    'https://structura-resource-management.vercel.app',
+                    'https://structura-silk.vercel.app'
                 ];
                 if (!origin) return callback(null, true);
                 const isAllowed = allowedOrigins.indexOf(origin) !== -1 || 
