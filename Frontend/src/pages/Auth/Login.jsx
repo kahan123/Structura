@@ -57,10 +57,16 @@ const Login = () => {
             ? '/api/auth/login'
             : '/api/auth/signup';
 
+        console.log('[Auth Debug] Attempting authentication...');
+        console.log('[Auth Debug] Axios Instance Base URL:', axios.defaults.baseURL);
+        console.log('[Auth Debug] Target endpoint URL:', url);
+        console.log('[Auth Debug] Full Request URL:', `${axios.defaults.baseURL || ''}${url}`);
+        console.log('[Auth Debug] Form Data payload:', formData);
+
         try {
             const { data } = await axios.post(url, formData);
             localStorage.setItem('userInfo', JSON.stringify(data));
-            console.log('Auth Success:', data);
+            console.log('[Auth Debug] Authentication Success:', data);
 
             // Register socket immediately
             registerUser(data);
@@ -75,7 +81,16 @@ const Login = () => {
                 navigate('/dashboard');
             }
         } catch (err) {
-            setError(err.response?.data?.message || 'An error occurred');
+            console.error('[Auth Debug] Authentication failed with error:', err);
+            if (err.response) {
+                console.error('[Auth Debug] Server responded with status:', err.response.status);
+                console.error('[Auth Debug] Server response data:', err.response.data);
+            } else if (err.request) {
+                console.error('[Auth Debug] Request made but no response received:', err.request);
+            } else {
+                console.error('[Auth Debug] Error setup details:', err.message);
+            }
+            setError(err.response?.data?.message || `An error occurred: ${err.message}`);
         } finally {
             setLoading(false);
         }

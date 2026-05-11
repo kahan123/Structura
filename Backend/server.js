@@ -34,6 +34,17 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Request logger middleware
+app.use((req, res, next) => {
+    console.log(`[Backend Request Log] ${req.method} ${req.url}`);
+    console.log(`[Backend Request Log] Origin:`, req.headers.origin);
+    console.log(`[Backend Request Log] Headers:`, req.headers);
+    if (req.body && Object.keys(req.body).length > 0) {
+        console.log(`[Backend Request Log] Body:`, JSON.stringify(req.body));
+    }
+    next();
+});
+
 // Init Socket.io
 const io = socketInit(server);
 
