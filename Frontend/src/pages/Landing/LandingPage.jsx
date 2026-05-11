@@ -11,8 +11,7 @@ import AutomationPipelineSection from './AutomationPipelineSection';
 import ArchitecturalAssemblySection from './ArchitecturalAssemblySection';
 
 // Preload models to ensure they start loading immediately
-useGLTF.preload('/model/class.glb');
-useGLTF.preload('/model/room.glb');
+useGLTF.preload('/model/school.glb');
 useTexture.preload('/texttures/schoolTexture.png');
 
 export default function LandingPage() {
