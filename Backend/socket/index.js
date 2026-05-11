@@ -5,7 +5,22 @@ const User = require('../models/User');
 const socketInit = (server) => {
     const io = socketIo(server, {
         cors: {
-            origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+            origin: (origin, callback) => {
+                const allowedOrigins = [
+                    'http://localhost:5173',
+                    'http://localhost:5000',
+                    'https://structura-resource-management.vercel.app'
+                ];
+                if (!origin) return callback(null, true);
+                const isAllowed = allowedOrigins.indexOf(origin) !== -1 || 
+                                  origin.endsWith('.vercel.app') || 
+                                  origin.startsWith('http://localhost:');
+                if (isAllowed) {
+                    callback(null, true);
+                } else {
+                    callback(new Error('Not allowed by CORS'));
+                }
+            },
             methods: ["GET", "POST", "PATCH", "PUT", "DELETE"]
         }
     });
