@@ -30,17 +30,10 @@ export default function Scene() {
         scene.background = new THREE.Color('#fcf6e6');
         scene.fog = new THREE.Fog('#fcf6e6', 5, 25);
 
-        const ctx = gsap.context(() => {
-            const isMobile = window.innerWidth < 768;
+        const mm = gsap.matchMedia();
 
-            if (isMobile) {
-                gsap.set(groupRef.current.position, { y: 1.1 });
-                gsap.set(groupRef.current.scale, { x: 0.35, y: 0.35, z: 0.35 });
-            } else {
-                gsap.set(groupRef.current.position, { y: 0 });
-                gsap.set(camera.position, { z: 10 });
-            }
-
+        // Standard animations independent of viewport size
+        mm.add("all", () => {
             ScrollTrigger.create({
                 trigger: "#problem-solution",
                 start: "top bottom",
@@ -68,6 +61,22 @@ export default function Scene() {
                 }
             });
 
+            gsap.to(".glass-card", {
+                scrollTrigger: {
+                    trigger: "#problem-solution",
+                },
+                stagger: 0.5,
+                opacity: 1,
+                ease: "power2.inOut"
+            });
+        });
+
+        // Desktop specific setup (768px and above)
+        mm.add("(min-width: 768px)", () => {
+            gsap.set(groupRef.current.position, { x: 0, y: 0, z: 0 });
+            gsap.set(groupRef.current.scale, { x: 1, y: 1, z: 1 });
+            gsap.set(camera.position, { x: 0, y: 0, z: 10 });
+
             gsap.timeline({
                 scrollTrigger: {
                     trigger: "#problem-solution",
@@ -77,26 +86,17 @@ export default function Scene() {
                 }
             })
                 .to(groupRef.current.position, {
-                    x: isMobile ? 0 : -3,
-                    y: isMobile ? -0.2 : -0.8,
+                    x: -3,
+                    y: -0.8,
                     z: 0,
                     ease: "power2.inOut"
                 })
                 .to(groupRef.current.rotation, {
-                    x: isMobile ? degToRad(-10) : degToRad(10),
-                    y: isMobile ? degToRad(360) : degToRad(180),
+                    x: degToRad(10),
+                    y: degToRad(180),
                     z: degToRad(0),
                     ease: "power2.inOut"
                 }, "<");
-
-            gsap.to(".glass-card", {
-                scrollTrigger: {
-                    trigger: "#problem-solution",
-                },
-                stagger: 0.5,
-                opacity: 1,
-                ease: "power2.inOut"
-            });
 
             const featureTl = gsap.timeline({
                 scrollTrigger: {
@@ -109,20 +109,71 @@ export default function Scene() {
 
             featureTl
                 .to(camera.rotation, {
-                    x: isMobile ? 0 : -0.00,
-                    y: isMobile ? degToRad(49) : -1.22,
-                    z: isMobile ? 0 : -0.00,
+                    x: -0.00,
+                    y: -1.22,
+                    z: -0.00,
                     ease: "power2.inOut",
                 })
                 .to(camera.position, {
-                    x: isMobile ? 0.8 : -4.51,
-                    y: isMobile ? 0.2 : -0.16,
-                    z: isMobile ? 0.5 : 1.67,
+                    x: -4.51,
+                    y: -0.16,
+                    z: 1.67,
                     ease: "power2.inOut",
                 }, "<");
         });
 
-        return () => ctx.revert();
+        // Mobile specific setup (under 768px)
+        mm.add("(max-width: 767px)", () => {
+            gsap.set(groupRef.current.position, { x: 0, y: 1.1, z: 0 });
+            gsap.set(groupRef.current.scale, { x: 0.35, y: 0.35, z: 0.35 });
+            gsap.set(camera.position, { x: 0, y: 0, z: 10 });
+
+            gsap.timeline({
+                scrollTrigger: {
+                    trigger: "#problem-solution",
+                    start: "top bottom",
+                    end: "center center",
+                    scrub: 1,
+                }
+            })
+                .to(groupRef.current.position, {
+                    x: 0,
+                    y: -0.2,
+                    z: 0,
+                    ease: "power2.inOut"
+                })
+                .to(groupRef.current.rotation, {
+                    x: degToRad(-10),
+                    y: degToRad(360),
+                    z: degToRad(0),
+                    ease: "power2.inOut"
+                }, "<");
+
+            const featureTl = gsap.timeline({
+                scrollTrigger: {
+                    trigger: "#features",
+                    start: "top bottom",
+                    end: "center center",
+                    scrub: 1,
+                }
+            });
+
+            featureTl
+                .to(camera.rotation, {
+                    x: 0,
+                    y: degToRad(49),
+                    z: 0,
+                    ease: "power2.inOut",
+                })
+                .to(camera.position, {
+                    x: 0.8,
+                    y: 0.2,
+                    z: 0.5,
+                    ease: "power2.inOut",
+                }, "<");
+        });
+
+        return () => mm.revert();
     }, [camera, scene]);
 
     useFrame((state, delta) => {

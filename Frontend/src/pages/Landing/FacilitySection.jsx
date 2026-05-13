@@ -24,6 +24,35 @@ const FacilitySection = ({ setHideNavbar }) => {
 
     const getFeatureById = (id) => features.find(f => f.id === id);
 
+    const triggerShockwave = (clientX, clientY) => {
+        if (!sceneRef.current || !bodiesRef.current || bodiesRef.current.length === 0) return;
+        const rect = sceneRef.current.getBoundingClientRect();
+        const posX = clientX - rect.left;
+        const posY = clientY - rect.top;
+
+        bodiesRef.current.forEach((body) => {
+            if (!body || body.isStatic) return;
+
+            const dx = body.position.x - posX;
+            const dy = body.position.y - posY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            const forceRadius = 320; // Massive force radius
+
+            if (dist < forceRadius && dist > 10) {
+                const normal = { x: dx / dist, y: dy / dist };
+                
+                // Set immediate velocity boost for an extremely clear, tactile physical push!
+                // High velocityFactor (e.g. 10) creates an instant and highly visible springy fling.
+                const velocityFactor = 10 * (1 - dist / forceRadius);
+                
+                Matter.Body.setVelocity(body, {
+                    x: body.velocity.x + normal.x * velocityFactor,
+                    y: body.velocity.y + normal.y * velocityFactor
+                });
+            }
+        });
+    };
+
     useEffect(() => {
         const Engine = Matter.Engine,
             World = Matter.World,
@@ -46,10 +75,10 @@ const FacilitySection = ({ setHideNavbar }) => {
         const orbSize = isMobile ? 80 : 120;
         const orbOffset = orbSize / 2;
 
-        const anchors = [
+        let anchors = [
             { x: width * 0.15, y: height * (isMobile ? 0.40 : 0.25) },
             { x: width * 0.85, y: height * (isMobile ? 0.40 : 0.25) },
-            { x: width * 0.5, y: height * (isMobile ? 0.60 : 0.5) },
+            { x: width * 0.5,  y: height * (isMobile ? 0.60 : 0.5) },
             { x: width * 0.15, y: height * (isMobile ? 0.80 : 0.70) },
             { x: width * 0.85, y: height * (isMobile ? 0.80 : 0.70) },
         ];
@@ -83,9 +112,13 @@ const FacilitySection = ({ setHideNavbar }) => {
         World.add(engine.world, [...bodies, ...constraints]);
 
         const mousePos = { x: -1000, y: -1000 };
-        const handleInput = (x, y) => {
-            mousePos.x = x;
-            mousePos.y = y;
+        
+        // Dynamic coordinate calculation relative to the canvas bounds (accounts for scroll and layouts)
+        const handleInput = (clientX, clientY) => {
+            if (!sceneRef.current) return;
+            const rect = sceneRef.current.getBoundingClientRect();
+            mousePos.x = clientX - rect.left;
+            mousePos.y = clientY - rect.top;
         };
 
         const handleMouseMove = (e) => handleInput(e.clientX, e.clientY);
@@ -95,15 +128,73 @@ const FacilitySection = ({ setHideNavbar }) => {
             }
         };
 
+
+
+        // Tilt-based gravity controls utilizing mobile orientation (gyroscope/accelerometer)
+        const handleOrientation = (e) => {
+            if (!engineRef.current) return;
+            // gamma: left-to-right tilt in degrees [-90, 90]
+            // beta: front-to-back tilt in degrees [-180, 180]
+            const xTilt = e.gamma;
+            const yTilt = e.beta;
+
+            if (xTilt !== null && yTilt !== null) {
+                // Scale and clamp tilt values for comfortable, fluid gravity response
+                const gravityX = Math.max(Math.min(xTilt / 40, 1.2), -1.2);
+                const gravityY = Math.max(Math.min(yTilt / 40, 1.2), -1.2);
+
+                engineRef.current.world.gravity.x = gravityX;
+                engineRef.current.world.gravity.y = gravityY;
+            }
+        };
+
+        const handleResize = () => {
+            if (!sceneRef.current || !engineRef.current) return;
+            const newWidth = sceneRef.current.clientWidth;
+            const newHeight = sceneRef.current.clientHeight;
+            const isMobile = newWidth < 768;
+
+            const newAnchors = [
+                { x: newWidth * 0.15, y: newHeight * (isMobile ? 0.40 : 0.25) },
+                { x: newWidth * 0.85, y: newHeight * (isMobile ? 0.40 : 0.25) },
+                { x: newWidth * 0.5,  y: newHeight * (isMobile ? 0.60 : 0.5) },
+                { x: newWidth * 0.15, y: newHeight * (isMobile ? 0.80 : 0.70) },
+                { x: newWidth * 0.85, y: newHeight * (isMobile ? 0.80 : 0.70) },
+            ];
+
+            newAnchors.forEach((newAnchor, idx) => {
+                if (anchors[idx]) {
+                    anchors[idx].x = newAnchor.x;
+                    anchors[idx].y = newAnchor.y;
+                }
+            });
+
+            constraints.forEach((tether, idx) => {
+                tether.pointA = anchors[idx];
+                const body = bodies[idx];
+                if (body && !body.isStatic) {
+                    Matter.Body.setPosition(body, {
+                        x: anchors[idx].x + (Math.random() - 0.5) * 10,
+                        y: anchors[idx].y + (Math.random() - 0.5) * 10
+                    });
+                }
+            });
+        };
+
         window.addEventListener('mousemove', handleMouseMove);
         window.addEventListener('touchmove', handleTouchMove, { passive: true });
-        window.addEventListener('touchstart', handleTouchMove, { passive: true });
+        window.addEventListener('resize', handleResize);
+
+        if (window.DeviceOrientationEvent) {
+            window.addEventListener('deviceorientation', handleOrientation);
+        }
 
         Events.on(engine, 'beforeUpdate', () => {
-            const width = window.innerWidth;
-            const height = window.innerHeight;
+            if (!sceneRef.current) return;
+            const currentWidth = sceneRef.current.clientWidth;
+            const currentHeight = sceneRef.current.clientHeight;
 
-            if (mousePos.x <= 0 || mousePos.x >= width || mousePos.y <= 0 || mousePos.y >= height) {
+            if (mousePos.x <= 0 || mousePos.x >= currentWidth || mousePos.y <= 0 || mousePos.y >= currentHeight) {
                 bodies.forEach((body) => {
                     if (body.isStatic) return;
                     Body.applyForce(body, body.position, {
@@ -113,8 +204,8 @@ const FacilitySection = ({ setHideNavbar }) => {
                 });
             }
 
-            if (mousePos.x > 0 && mousePos.x < width && mousePos.y > 0 && mousePos.y < height) {
-                const isMobile = width < 768;
+            if (mousePos.x > 0 && mousePos.x < currentWidth && mousePos.y > 0 && mousePos.y < currentHeight) {
+                const isMobile = currentWidth < 768;
                 const magnetRadius = isMobile ? 120 : 300;
 
                 bodies.forEach((body) => {
@@ -192,7 +283,10 @@ const FacilitySection = ({ setHideNavbar }) => {
         return () => {
             window.removeEventListener('mousemove', handleMouseMove);
             window.removeEventListener('touchmove', handleTouchMove);
-            window.removeEventListener('touchstart', handleTouchMove);
+            window.removeEventListener('resize', handleResize);
+            if (window.DeviceOrientationEvent) {
+                window.removeEventListener('deviceorientation', handleOrientation);
+            }
             cancelAnimationFrame(animationFrameId);
             Runner.stop(runner);
             World.clear(engine.world);
@@ -201,6 +295,9 @@ const FacilitySection = ({ setHideNavbar }) => {
     }, []);
 
     useEffect(() => {
+        const hasPointer = window.matchMedia("(pointer: fine)").matches;
+        if (!hasPointer) return;
+
         const moveCursor = (e) => {
             if (cursorRef.current && !expandedFeatureId) {
                 cursorRef.current.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
@@ -253,6 +350,10 @@ const FacilitySection = ({ setHideNavbar }) => {
         <section
             id="how-it-works"
             style={{ height: '100vh' }}
+            onPointerDown={(e) => {
+                if (expandedFeatureId) return;
+                triggerShockwave(e.clientX, e.clientY);
+            }}
             className={`relative w-full bg-gradient-to-b from-transparent via-[#050505]/95 to-[#050505] overflow-hidden flex flex-col items-center justify-center font-sans selection:bg-cyan-500/30 snap-start ${isHovering && !expandedFeatureId ? 'cursor-none' : ''}`}
             onMouseEnter={() => setIsHovering(true)}
             onMouseLeave={() => setIsHovering(false)}
@@ -264,7 +365,7 @@ const FacilitySection = ({ setHideNavbar }) => {
             {/* Pure CSS Custom Magnet Cursor */}
             <div
                 ref={cursorRef}
-                className={`fixed top-0 left-0 w-16 h-16 pointer-events-none z-50 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-cyan-400/50 bg-cyan-400/5 backdrop-blur-sm transition-transform duration-200 ease-out ${isHovering && !expandedFeatureId ? 'scale-100' : 'scale-0'}`}
+                className={`fixed top-0 left-0 w-16 h-16 pointer-events-none z-50 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-cyan-400/50 bg-cyan-400/5 backdrop-blur-sm transition-transform duration-200 ease-out hidden lg:block ${isHovering && !expandedFeatureId ? 'scale-100' : 'scale-0'}`}
             />
 
             <div ref={sceneRef} className="absolute inset-0 pointer-events-none" />

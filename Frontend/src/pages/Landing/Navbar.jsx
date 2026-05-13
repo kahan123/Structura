@@ -16,6 +16,17 @@ export default function Navbar({ isHidden }) {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
+    useEffect(() => {
+        if (mobileMenuOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [mobileMenuOpen]);
+
     const navRef = useRef(null);
     useGSAP(() => {
         // Only run entrance animation once on load
